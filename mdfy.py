@@ -45,7 +45,7 @@ def convertEquationArray(match):
     return latex
 
 def mdfy(latex):
-    latex = re.sub(r"(\\section{Exercises})((.|\n)*)", r"# Exercises\n\nTODO: Add exercises from C++ course", latex, flags=re.MULTILINE)
+    latex = re.sub(r"(\\section{Exercises})((.|\n)*)", r"# Exercises\n\nTODO: Add exercises from C++ course.\n\n", latex, flags=re.MULTILINE)
 
     # Text formating
     latex = re.sub(r"\{\\em ([^}]*)\}", r"*\g<1>*", latex)
@@ -103,13 +103,13 @@ def mdfy(latex):
     latex = re.sub(r"\\\[([^\]]*)\\\]", r"$\g<1>$", latex)
 
     #images
-    latex = re.sub(r"\\includegraphics\{([^}]*)\}", r"![](\g<1>)", latex)
+    latex = re.sub(r"\\includegraphics\{figs/([^}]*)\}", r"![\g<1>](\g<1>)", latex)
     latex = re.sub(r"\\caption\{([^}]*)\}", r"<p>\g<1></p>", latex)
     latex = re.sub(r"\\begin\{figure\}(\[([^\]]*)\])?", r"", latex)
     latex = re.sub(r"\\begin\{center\}", r"", latex)
     latex = re.sub(r"\\end\{figure\}", r"", latex)
     latex = re.sub(r"\\end\{center\}", r"", latex)
-    latex = re.sub(r"\\includegraphics(\[([^\]]*)\])?", r"![](\g<1>)", latex)
+    latex = re.sub(r"\\includegraphics(?:\[([^\]]*)\])?\{figs/([^}]*)\}", r"![\g<2>](\g<2>)", latex)
 
     # Vocabullary definition
     latex = re.sub(r"\\begin\{description\}", r"", latex)
@@ -139,6 +139,8 @@ def main(argv):
         latex = texFile.read().rstrip()
 
     markdown = mdfy(latex)
+
+    markdown += "<sub>Este texto está basado en el libro [Think Java](https://greenteapress.com/wp/think-java-2e/) de Allen Downey y Chris Mayfield y está disponinble bajo la licencia [Creative Commons Attribution-NonCommercial-ShareAlike 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).</sub>"
 
     mdFile = open(outputfile, "w")
     mdFile.write(markdown)
