@@ -2,6 +2,26 @@
 import sys
 import re
 
+def convertQuotes(latex):
+    startTag = "\\begin{quote}"
+    endTag = "\\end{quote}"
+
+    while True:
+        endPos = latex.find(endTag)
+        if endPos == -1:
+            break
+        endPos += len(endTag)
+        startPos = latex.rfind(startTag, 0, endPos)
+
+        substring = latex[startPos:endPos]
+        mdQuoted = substring
+        mdQuoted = re.sub(r"\n", r" \n >", mdQuoted, flags=re.MULTILINE)
+        mdQuoted = mdQuoted.replace(startTag, "")
+        mdQuoted = mdQuoted.replace(endTag, "")
+        latex = latex.replace(substring, mdQuoted)
+
+    return latex
+
 def convertTable(match):
     latex = match.group()
     latex = re.sub(r"\\begin{tabular}(?:\{([^\}]*)\})?", r"", latex)
@@ -15,6 +35,12 @@ def convertTable(match):
 
     numberOfColumns = latex[0:latex.find("\n")].count("|") - 1
     latex = "| " * numberOfColumns + "|\n" + "|---" * numberOfColumns + "|\n" + latex
+    
+    return latex
+
+def convertEquationArray(match):
+    latex = match.group()
+    latex = re.sub(r"\\\\", r" \\newline", latex)
     
     return latex
 
@@ -35,6 +61,9 @@ def mdfy(latex):
 
     latex = re.sub(r"\\begin\{small\}", "", latex)
     latex = re.sub(r"\\end\{small\}", "", latex)
+
+    latex = re.sub(r"\{\\sf ([^}]*)\}", r"**\g<1>**", latex)
+    latex = re.sub(r"\\textbf\{([^}]*)\}", r"**\g<1>**", latex)
 
     # Sections and subsections
     latex = re.sub(r"\\chapter\{([^}]*)\}", r"# \g<1>", latex)
@@ -92,9 +121,12 @@ def mdfy(latex):
     latex = re.sub(r"\\begin\{table\}(\[[^\]]+\])?", r"", latex)
     latex = re.sub(r"(?:\\begin{tabular})(?:\{([^\}]*)\})?((.|\n)*)(?:\\end{tabular})", convertTable, latex, flags=re.MULTILINE)
     latex = re.sub(r"\\end\{table\}", r"", latex)
+    
+    # Equation array
+    latex = re.sub(r"(?:\\begin{eqnarray\*})((.|\n)*)(?:\\end{eqnarray\*})", convertEquationArray, latex, flags=re.MULTILINE)
 
-    # Quote
-    latex = re.sub(r"(?:\\begin{quote}\n)(?:\{([^\}]*)\})?((.|\n)*)(?:\\end{quote})", r"> \g<2>", latex, flags=re.MULTILINE)
+    # Quotes
+    latex = convertQuotes(latex)
 
     return latex
 
