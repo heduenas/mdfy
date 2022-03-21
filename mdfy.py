@@ -103,13 +103,15 @@ def mdfy(latex):
     latex = re.sub(r"\\\[([^\]]*)\\\]", r"$\g<1>$", latex)
 
     #images
-    latex = re.sub(r"\\includegraphics\{figs/([^}]*)\}", r"![\g<1>](\g<1>)", latex)
+    latex = re.sub(r"figs/([^\.]*)\.pdf", r"\g<1>.png", latex)
+    latex = re.sub(r"figs/([^\.]*)\.jpg", r"\g<1>.jpg", latex)
+    latex = re.sub(r"\\includegraphics\{([^}]*)\}", r"![\g<1>](\g<1>)", latex)
     latex = re.sub(r"\\caption\{([^}]*)\}", r"<p>\g<1></p>", latex)
     latex = re.sub(r"\\begin\{figure\}(\[([^\]]*)\])?", r"", latex)
     latex = re.sub(r"\\begin\{center\}", r"", latex)
     latex = re.sub(r"\\end\{figure\}", r"", latex)
     latex = re.sub(r"\\end\{center\}", r"", latex)
-    latex = re.sub(r"\\includegraphics(?:\[([^\]]*)\])?\{figs/([^}]*)\}", r"![\g<2>](\g<2>)", latex)
+    latex = re.sub(r"\\includegraphics(?:\[([^\]]*)\])?\{([^}]*)\}", r"![\g<2>](\g<2>)", latex)
 
     # Vocabullary definition
     latex = re.sub(r"\\begin\{description\}", r"", latex)
